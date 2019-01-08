@@ -1,18 +1,10 @@
-/* 
-#016DEF
-#107DFF
-#3390FF
-#5CA6FF
-#88BEFE
-*/
-
 /* define new styles */
 .jp-Cell.rmotr-cell-is-solution {
   background-color: var(--md-blue-50) !important;
   margin-bottom: 1rem;
 }
 .jp-Cell.rmotr-cell-is-hint {
-  background-color: var(--md-yellow-100) !important;
+  background-color: var(--md-amber-50) !important;
   margin-bottom: 1rem;
 }
 
@@ -33,7 +25,7 @@
 
 .jp-Cell.rmotr-cell-is-solution:hover .rmotr-toggleCellHeaderButton,
 .jp-Cell.rmotr-cell-is-hint:hover .rmotr-toggleCellHeaderButton {
-  opacity: 0.2;
+  opacity: 0.3;
 }
 
 .jp-Cell.rmotr-cell-is-solution.jp-mod-active .rmotr-toggleCellHeaderButton,
@@ -53,34 +45,33 @@
   margin: 0.2rem 0;
   outline: none;
   cursor: pointer;
+  user-select: none;
 }
-
-.jp-Cell.rmotr-cell-is-solution .rmotr-toggleCellHeaderButton {
-  background-color: #3390FF;
+.jp-Cell.rmotr-cell-is-solution .rmotr-toggleCellHeaderButton {
+  background: var(--md-blue-400);
 }
-
-.jp-Cell.rmotr-cell-is-hint .rmotr-toggleCellHeaderButton {
-  background-color: #3390FF;
+.jp-Cell.rmotr-cell-is-hint .rmotr-toggleCellHeaderButton {
+  background: var(--md-amber-400);
 }
 
 .jp-Cell.rmotr-cell-is-solution .rmotr-toggleCellHeaderButton:hover {
-  background-color: #107DFF;
+  background-color: var(--md-blue-500);
   opacity: 1;
   box-shadow: var(--jp-elevation-z2);
 }
 
 .jp-Cell.rmotr-cell-is-hint .rmotr-toggleCellHeaderButton:hover {
-  background-color: #107DFF;
+  background-color: var(--md-amber-500);
   opacity: 1;
   box-shadow: var(--jp-elevation-z2);
 }
 
 .jp-Cell.rmotr-cell-is-solution .rmotr-toggleCellHeaderButton:active {
-  background-color: #016DEF;
+  background-color: var(--md-blue-600);
 }
 
 .jp-Cell.rmotr-cell-is-hint .rmotr-toggleCellHeaderButton:active {
-  background-color: #016DEF;
+  background-color: var(--md-amber-600);
 }
 
 .jp-Cell.rmotr-cell-is-solution .rmotr-cellHeaderText,

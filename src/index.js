@@ -130,7 +130,7 @@ const activate = (app, cellTools, notebookTracker) => {
   .then(res => res.json())
   .then(res => {
     isEnabled = res.is_enabled;
-    isTeacher = true || res.role === 'teacher';
+    isTeacher = res.role !== 'teacher';
 
     if (isEnabled) {
       if (isTeacher) {
