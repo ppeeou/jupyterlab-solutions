@@ -1,5 +1,4 @@
 import { ICellTools, INotebookTracker } from "@jupyterlab/notebook";
-import { DisposableDelegate } from '@phosphor/disposable';
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { PageConfig } from '@jupyterlab/coreutils'
 import "../style/index.css";
@@ -35,7 +34,7 @@ class RmotrToolbarButtons {
   }
 }
 
-const createCellHeader = (cell, type, isFirstLoad, isTeacher) => {
+const createCellHeader = (cell, type, isTeacher) => {
   var cellHeaderDiv = document.createElement('div');
   cellHeaderDiv.className = 'rmotr-cellHeaderContainer';
   cellHeaderDiv.innerHTML = `<p class="rmotr-cellHeaderText"><span>${type}</span> block</p>`;
@@ -114,7 +113,7 @@ const toggleCellType = (cell, type, isFirstLoad, isTeacher) => {
   }
 
   // create a new cell header
-  if (newValue) createCellHeader(cell, newValue, isFirstLoad, isTeacher);
+  if (newValue) createCellHeader(cell, newValue, isTeacher);
 }
 
 /**
@@ -130,7 +129,7 @@ const activate = (app, cellTools, notebookTracker) => {
   .then(res => res.json())
   .then(res => {
     isEnabled = res.is_enabled;
-    isTeacher = res.role !== 'teacher';
+    isTeacher = res.role === 'teacher';
 
     if (isEnabled) {
       if (isTeacher) {
@@ -139,17 +138,14 @@ const activate = (app, cellTools, notebookTracker) => {
       }
 
       // update cells type
-      notebookTracker.widgetAdded.connect(() => {
-        console.log('widget added', notebookTracker)
-        const { currentWidget } = notebookTracker;
+      notebookTracker.widgetAdded.connect((nbTracker) => {
+        nbTracker._widgets.forEach(widget => {
+          const { content } = widget;
 
-        currentWidget.revealed.then(() => {
-          const { content } = currentWidget;
-
-          content.widgets.forEach(cell => {
-            toggleCellType(cell, false, true, isTeacher);
+          widget.revealed.then(() => {
+            content.widgets.forEach(cell => toggleCellType(cell, false, true, isTeacher));
           })
-        })
+        });
       })
     }
   });

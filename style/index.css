@@ -8,8 +8,7 @@
   margin-bottom: 1rem;
 }
 
-.jp-Cell:not(.rmotr-cell-is-solution) .jp-Cell-inputArea.p-mod-hidden,
-.jp-Cell:not(.rmotr-cell-is-hint) .jp-Cell-inputArea.p-mod-hidden {
+.jp-Cell:not(.rmotr-cell-is-solution):not(.rmotr-cell-is-hint) .jp-Cell-inputArea.p-mod-hidden {
   display: inherit !important;
 }
 
@@ -43,6 +42,7 @@
   border: none;
   padding: 4px 8px;
   margin: 0.2rem 0;
+  text-shadow: 0px 0px 5px rgba(0,0,0,0.15);
   outline: none;
   cursor: pointer;
   user-select: none;
@@ -57,21 +57,25 @@
 .jp-Cell.rmotr-cell-is-solution .rmotr-toggleCellHeaderButton:hover {
   background-color: var(--md-blue-500);
   opacity: 1;
+  text-shadow: 0px 0px 7px rgba(0,0,0,0.3);
   box-shadow: var(--jp-elevation-z2);
 }
 
 .jp-Cell.rmotr-cell-is-hint .rmotr-toggleCellHeaderButton:hover {
   background-color: var(--md-amber-500);
   opacity: 1;
+  text-shadow: 0px 0px 7px rgba(0,0,0,0.3);
   box-shadow: var(--jp-elevation-z2);
 }
 
 .jp-Cell.rmotr-cell-is-solution .rmotr-toggleCellHeaderButton:active {
   background-color: var(--md-blue-600);
+  text-shadow: 0px 0px 4px rgba(0,0,0,0.4);
 }
 
 .jp-Cell.rmotr-cell-is-hint .rmotr-toggleCellHeaderButton:active {
   background-color: var(--md-amber-600);
+  text-shadow: 0px 0px 4px rgba(0,0,0,0.4);
 }
 
 .jp-Cell.rmotr-cell-is-solution .rmotr-cellHeaderText,
