@@ -37,7 +37,7 @@ class RmotrToolbarButtons {
 const createCellHeader = (cell, type, isTeacher) => {
   var cellHeaderDiv = document.createElement('div');
   cellHeaderDiv.className = 'rmotr-cellHeaderContainer';
-  cellHeaderDiv.innerHTML = `<p class="rmotr-cellHeaderText"><span>${type}</span> block</p>`;
+  cellHeaderDiv.innerHTML = `<p class="rmotr-cellHeaderText"><span>${type}</span> available</p>`;
   if (!isTeacher) cellHeaderDiv.innerHTML += `<button class="rmotr-toggleCellHeaderButton">Hide ${type}</button>`;
 
   var cellHeader = cell.node.getElementsByClassName('jp-CellHeader')[0];
