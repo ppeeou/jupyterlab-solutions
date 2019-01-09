@@ -48,6 +48,6 @@ on `/Users/<USERNAME>/.jupyter/jupyter_notebook_config.json`.
 
 Add the following to `/Users/<USERNAME>/.jupyter/jupyter_notebook_config.py`.
 ```
-c.JupyterLabRmotrSolutions.is_enabled = True
-c.JupyterLabRmotrSolutions.role = 'teacher'
+c.JupyterLabRmotrSolutions.is_enabled = True # True, False
+c.JupyterLabRmotrSolutions.role = 'teacher' # 'teacher', 'student'
 ```

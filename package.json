@@ -1,11 +1,19 @@
 {
   "name": "@rmotr/jupyterlab-solutions",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Add your own exercises to JupyterLab",
   "keywords": [
     "jupyter",
     "jupyterlab",
-    "jupyterlab-extension"
+    "jupyterlab-extension",
+    "jupyter-notebook",
+    "education",
+    "educational",
+    "javascript",
+    "teachers",
+    "demo",
+    "students",
+    "jupyterlab-solutions"
   ],
   "homepage": "https://github.com/rmotr/jupyterlab-solutions.git",
   "bugs": {

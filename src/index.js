@@ -1,61 +1,62 @@
 import { ICellTools, INotebookTracker } from "@jupyterlab/notebook";
-import { DisposableDelegate } from '@phosphor/disposable';
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { PageConfig } from '@jupyterlab/coreutils'
-import { CellToolsImageWidget } from "./components";
 import "../style/index.css";
 
-class SolutionsToolbarButton {
+class RmotrToolbarButtons {
   constructor(notebookTracker) {
     this.notebookTracker = notebookTracker;
   }
 
   createNew(panel, context) {
-    let handleSolutionButton = () => {
-      const activeCell = this.notebookTracker.activeCell;
-
-      toggleCellAsSolution(activeCell, false, true);
-    }
+    const getButton = type => {
+      let icon = type === 'solution' ? 'graduation-cap' : 'lightbulb-o';
+      
+      let handleClick = () => {
+        const activeCell = this.notebookTracker.activeCell;
   
-    let solutionButton = new ToolbarButton({
-      className: `solution-button`,
-      label: 'Mark as solution',
-      iconClassName: 'fa fa-graduation-cap',
-      onClick: handleSolutionButton,
-      tooltip: 'Show Input'
-    });
+        toggleCellType(activeCell, type, false, true);
+      }
 
-    panel.toolbar.insertItem(10, 'text', solutionButton);
-	
-    return new DisposableDelegate(() => {
-	    solutionButton.dispose();
-    });
+      return (
+        new ToolbarButton({
+          className: `${type}-button`,
+          label: `Mark as ${type}`,
+          iconClassName: `fa fa-${icon}`,
+          onClick: handleClick,
+          tooltip: `Mark current cell as ${type}`
+        })
+      )
+    }
+
+    panel.toolbar.insertItem(10, 'SolutionButton', getButton('solution'));
+    panel.toolbar.insertItem(10, 'HintButton', getButton('hint'));
   }
 }
 
-const createSolutionHeader = (cell, isFirstLoad, isTeacher) => {
-  var solutionDiv = document.createElement('div');
-  solutionDiv.className = 'rmotr-solutionHeaderContainer';
-  solutionDiv.innerHTML = '<p class="rmotr-solutionText">Solution block</p>';
-  if (!isTeacher) solutionDiv.innerHTML += '<button class="rmotr-toggleSolutionButton">Hide solution</button>';
+const createCellHeader = (cell, type, isTeacher) => {
+  var cellHeaderDiv = document.createElement('div');
+  cellHeaderDiv.className = 'rmotr-cellHeaderContainer';
+  cellHeaderDiv.innerHTML = `<p class="rmotr-cellHeaderText"><span>${type}</span> available</p>`;
+  if (!isTeacher) cellHeaderDiv.innerHTML += `<button class="rmotr-toggleCellHeaderButton">Hide ${type}</button>`;
 
   var cellHeader = cell.node.getElementsByClassName('jp-CellHeader')[0];
-  cellHeader.appendChild(solutionDiv);
+  cellHeader.appendChild(cellHeaderDiv);
 
   if (!isTeacher) {
-    var solutionButton = cell.node.getElementsByClassName('rmotr-toggleSolutionButton')[0];
+    var cellHeaderButton = cell.node.getElementsByClassName('rmotr-toggleCellHeaderButton')[0];
     cell.inputArea.hide();
-    solutionButton.innerHTML = 'Reveal solution';
+    cellHeaderButton.innerHTML = `Reveal ${type}`;
 
-    solutionButton.addEventListener('click', (evt) => {
+    cellHeaderButton.addEventListener('click', (evt) => {
       const isCollapsed = cell.inputArea.isHidden
 
       if (isCollapsed) {
         cell.inputArea.show();
-        solutionButton.innerHTML = 'Hide solution';
+        cellHeaderButton.innerHTML = `Hide ${type}`;
       } else {
         cell.inputArea.hide();
-        solutionButton.innerHTML = 'Reveal solution';
+        cellHeaderButton.innerHTML = `Reveal ${type}`;
       }
     });
   } else {
@@ -63,28 +64,56 @@ const createSolutionHeader = (cell, isFirstLoad, isTeacher) => {
   }
 }
 
-const toggleCellAsSolution = (cell, isFirstLoad, isTeacher) => {
+const toggleCellType = (cell, type, isFirstLoad, isTeacher) => {
   const { model } = cell;
   const { metadata } = model;
-  const currentSolutionValue = metadata.get('is_solution');
-  let newSolutionValue = currentSolutionValue;
+  let currentValue = metadata.get('cell_type');
+  let newValue = currentValue;
 
-  // update cell metadata with solution status if toggle button was clicked
+  // TO BE DEPRECATED, used to have retrocompability to version <0.0.6
+  const OLD_IS_SOLUTION = metadata.get('is_solution');
+  if (OLD_IS_SOLUTION !== undefined) {
+    metadata.delete('is_solution');
+
+    if (OLD_IS_SOLUTION) {
+      currentValue = 'solution';
+      metadata.set('cell_type', 'solution');
+    }
+  }
+
+  // update cell metadata and class with new value if toggle button was clicked
   if (!isFirstLoad) {
-    newSolutionValue = !currentSolutionValue;
-    metadata.set("is_solution", newSolutionValue);
+    switch (true) {
+      case type === 'solution' && currentValue !== 'solution':
+        newValue = type;
+        metadata.set('cell_type', type);
+        cell.addClass('rmotr-cell-is-solution');
+        cell.removeClass(`rmotr-cell-is-${currentValue}`);
+        break;
+      case type === 'hint' && currentValue !== 'hint':
+        newValue = type;
+        metadata.set('cell_type', type);
+        cell.addClass('rmotr-cell-is-hint');
+        cell.removeClass(`rmotr-cell-is-${currentValue}`);
+        break;
+      case currentValue === type:
+      default:
+        metadata.delete('cell_type');
+        cell.removeClass(`rmotr-cell-is-${currentValue}`);
+    }
+  } else {
+    cell.addClass(`rmotr-cell-is-${currentValue}`);
   }
 
-  // first time element is marked as solution
-  var solutionDiv = cell.node.getElementsByClassName('rmotr-solutionHeaderContainer')[0];
-  if (!solutionDiv) createSolutionHeader(cell, isFirstLoad, isTeacher);
-  
-  // update class as solution
-  if (newSolutionValue) {
-    cell.addClass('rmotr-cell-isSolution');
-  } else {
-    cell.removeClass('rmotr-cell-isSolution');
+  // first time element is marked
+  var cellHeaderDiv = cell.node.getElementsByClassName('rmotr-cellHeaderContainer')[0];
+  if (cellHeaderDiv) {
+    // remove it
+    cellHeaderDiv.remove();
   }
+
+  // create a new cell header
+  if (newValue) createCellHeader(cell, newValue, isTeacher);
 }
 
 /**
@@ -92,10 +121,6 @@ const toggleCellAsSolution = (cell, isFirstLoad, isTeacher) => {
  */
 const activate = (app, cellTools, notebookTracker) => {
   console.log('>>> JupyterLab extension jupyterlab_rmotr_solutions (beta) is activated!');
-
-  // add image widget on cellTools
-  // const cellToolsImageWidget = new CellToolsImageWidget(notebookTracker);
-  // cellTools.addItem({ tool: cellToolsImageWidget, rank: 0 });
 
   let isEnabled = true;
   let isTeacher = false;
@@ -108,21 +133,19 @@ const activate = (app, cellTools, notebookTracker) => {
 
     if (isEnabled) {
       if (isTeacher) {
-        // add button on toolbar
-        app.docRegistry.addWidgetExtension('Notebook', new SolutionsToolbarButton(notebookTracker));
+        // add buttons on toolbar
+        app.docRegistry.addWidgetExtension('Notebook', new RmotrToolbarButtons(notebookTracker));
       }
 
-      // update solution cells
-      notebookTracker.widgetAdded.connect(() => {
-        const { currentWidget } = notebookTracker;
+      // update cells type
+      notebookTracker.widgetAdded.connect((nbTracker) => {
+        nbTracker._widgets.forEach(widget => {
+          const { content } = widget;
 
-        currentWidget.revealed.then(() => {
-          const { content } = currentWidget;
-
-          content.widgets.forEach(cell => {
-            toggleCellAsSolution(cell, true, isTeacher);
+          widget.revealed.then(() => {
+            content.widgets.forEach(cell => toggleCellType(cell, false, true, isTeacher));
           })
-        })
+        });
       })
     }
   });
